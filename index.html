@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance System</title>
+    <link rel="icon" href="https://www.optifast.com/sites/g/files/lpfasj681/files/6-24.jpeg" type="image/png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#333">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(rgba(0, 0, 50, 0.8), rgba(0, 0, 50, 0.8)), url('https://via.placeholder.com/800x600?text=Brick+Wall');
+            background-size: cover;
+            height: 100vh;
+            overflow-x: hidden;
+        }
+        .hidden {
+            display: none !important;
+        }
+        /* Splash Screen */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(rgba(0, 0, 50, 0.8), rgba(0, 0, 50, 0.8)), url('https://via.placeholder.com/800x600?text=Brick+Wall');
+            background-size: cover;
+            z-index: 1000;
+            animation: fadeOut 0.0s ease-out 3.5s forwards;
+        }
+        #splash-screen img {
+            max-width: 50%;
+            max-height: 50%;
+            border-radius: 180px;
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        /* Logo in Top-Right */
+        .top-logo {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 180px;
+        }
+        /* Form Containers */
+        .form-container {
+            background: linear-gradient(rgba(0, 0, 50, 0.8), rgba(0, 0, 50, 0.8)), url('https://via.placeholder.com/800x600?text=Brick+Wall');
+            background-size: cover;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            position: relative;
+        }
+        .register-container, .login-container, .forgot-password-container, .class-details-container, .absentees-container, .profile-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            width: 350px;
+            text-align: center;
+            max-height: 80vh;
+            overflow-y: auto;
+            color: white;
+        }
+        .absentees-container, .profile-container {
+            width: 500px;
+        }
+        h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .input-group input, .input-group select {
+            width: 90%;
+            padding: 10px 40px 10px 10px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.2);
+            color: rgb(141, 141, 141);
+            font-size: 16px;
+        }
+        .input-group select {
+            padding: 10px 10px 10px 10px;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background: rgba(255, 255, 255, 0.2);
+            background-size: 12px;
+        }
+        input::placeholder, select option {
+            color: rgb(138, 138, 138);
+        }
+        .icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 25px;
+            background: white;
+            color: #333;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .continue-button {
+            width: auto;
+            padding: 10px 20px;
+            margin: 10px;
+            display: inline-block;
+        }
+        .login-link, .register-link, .forgot-password-link {
+            margin-top: 20px;
+            color: rgb(255, 255, 255);
+            text-decoration: none;
+            display: block;
+        }
+        .login-link a, .register-link a, .forgot-password-link a {
+            color: rgb(77, 148, 253);
+            text-decoration: none;
+        }
+        .error {
+            color: #ff5555;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        .options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            color: white;
+        }
+        .options a {
+            color: white;
+            text-decoration: none;
+        }
+        #manual-entry input {
+            width: 90%;
+            padding: 10px 40px 10px 10px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        #absentees-table, #profile-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            color: white;
+        }
+        #absentees-table th, #absentees-table td, #profile-table th, #profile-table td {
+            border: 1px solid rgba(255, 255, 255, 0.384);
+            padding: 10px;
+            text-align: left;
+        }
+        #absentees-table th, #profile-table th {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        #absentees-table td, #profile-table td {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        #attendance-page {
+            position: relative;
+            min-height: 100vh;
+            background: #b4ddf8;
+            background-size: cover;
+        }
+        header {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(rgba(0, 0, 50, 0.8), rgba(0, 0, 50, 0.8)), url('https://via.placeholder.com/800x600?text=Brick+Wall');
+            background-size: cover;
+            color: white;
+        }
+        header h1 {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 0;
+        }
+        .date-container {
+            text-align: center;
+            padding: 20px;
+        }
+        .date-container input {
+            padding: 10px;
+            font-size: 16px;
+        }
+        .attendance-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .attendance-box {
+            display: flex;
+            align-items: center;
+            border: 3px solid #333333;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: rgb(255, 255, 255);
+            border-radius: 5px;
+        }
+        .student-info {
+            flex: 1;
+            padding: 0 10px;
+        }
+        .attendance-buttons {
+            display: flex;
+            gap: 10px;
+            padding: 0 10px;
+            min-width: 100px;
+            justify-content: center;
+            align-items: center;
+        }
+        .attendance-button {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        .absent {
+            background-color: red;
+        }
+        .present {
+            background-color: green;
+        }
+        .selected {
+            border: 4px solid #000000;
+        }
+        .save-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .save-button:hover {
+            background-color: #0056b3;
+        }
+        .menu-container {
+            position: relative;
+            padding: 10px;
+        }
+        .menu-button {
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .menu-dropdown {
+            position: absolute;
+            top: 40px;
+            left: 10px;
+            background-color: white;
+            border: 1px solid #000000;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.897);
+            display: none;
+        }
+        .menu-dropdown a {
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+            color: black;
+        }
+        .menu-dropdown a:hover {
+            background-color: #f0f0f0;
+        }
+        .edit-input {
+            width: 100%;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div id="splash-screen">
+        <img src="https://www.optifast.com/sites/g/files/lpfasj681/files/6-24.jpeg" alt="Attendance App Logo">
+    </div>
+
+    <!-- User Details Form (Registration) -->
+    <div id="user-details" class="form-container hidden">
+        <img src="https://www.optifast.com/sites/g/files/lpfasj681/files/6-24.jpeg" alt="Attendance App Logo" class="top-logo">
+        <div class="register-container">
+            <h2>Register</h2>
+            <form id="registerForm">
+                <div class="input-group">
+                    <input type="text" id="user-name" placeholder="Name" required>
+                    <span class="icon">👤</span>
+                    <div class="error" id="user-name-error">Name must be at least 3 characters long</div>
+                </div>
+                <div class="input-group">
+                    <input type="tel" id="phone-number" placeholder="Phone Number" required>
+                    <span class="icon">📞</span>
+                    <div class="error" id="phone-number-error">Please enter a valid phone number</div>
+                </div>
+                <div class="input-group">
+                    <input type="email" id="email" placeholder="Email" required>
+                    <span class="icon">📧</span>
+                    <div class="error" id="email-error">Please enter a valid email address</div>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" placeholder="Create Your Password" required>
+                    <span class="icon">🔒</span>
+                    <div class="error" id="password-error">Password must be at least 8 characters long</div>
+                </div>
+                <div class="input-group">
+                    <select id="institution-type" required>
+                        <option value="" disabled selected>-- Select Institution Type --</option>
+                        <option value="school">School</option>
+                        <option value="college">College</option>
+                    </select>
+                    <div class="error" id="institution-type-error">Please select an institution type</div>
+                </div>
+                <button type="submit">Register</button>
+                <div class="login-link">
+                    Already have an account? <a href="#" onclick="showLoginPage()">Login</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Login Page -->
+    <div id="login-page" class="form-container hidden">
+        <img src="https://www.optifast.com/sites/g/files/lpfasj681/files/6-24.jpeg" alt="Attendance App Logo" class="top-logo">
+        <div class="login-container">
+            <h2>Login</h2>
+            <form id="loginForm">
+                <div class="input-group">
+                    <input type="email" id="login-email" placeholder="Email" required>
+                    <span class="icon">📧</span>
+                    <div class="error" id="login-email-error">Please enter a valid email address</div>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="login-password" placeholder="Password" required>
+                    <span class="icon">🔒</span>
+                    <div class="error" id="login-password-error">Password must be at least 8 characters long</div>
+                </div>
+                <div class="options">
+                    <label><input type="checkbox"> Remember me</label>
+                    <a href="#" onclick="showForgotPassword()">Forgot password?</a>
+                </div>
+                <button type="submit">Login</button>
+                <div class="register-link">
+                    Don't have an account? <a href="#" onclick="showUserDetails()">Register</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Forgot Password Page -->
+    <div id="forgot-password" class="form-container hidden">
+        <img src="https://www.optifast.com/sites/g/files/lpfasj681/files/6-24.jpeg" alt="Attendance App Logo" class="top-logo">
+        <div class="forgot-password-container">
+            <h2>Forgot Password</h2>
+            <form id="forgotPasswordForm">
+                <div class="input-group">
+                    <input type="text" id="reset-email-or-phone" placeholder="Email or Phone Number" required>
+                    <span class="icon">📧</span>
+                    <div class="error" id="reset-email-or-phone-error">Please enter a valid email or phone number</div>
+                </div>
+                <button type="submit">Verify</button>
+                <div class="login-link">
+                    Back to <a href="#" onclick="showLoginPage()">Login</a>
+                </div>
+            </form>
+            <form id="newPasswordForm" class="hidden">
+                <div class="input-group">
+                    <input type="password" id="new-password" placeholder="New Password" required>
+                    <span class="icon">🔒</span>
+                    <div class="error" id="new-password-error">Password must be at least 8 characters long</div>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="confirm-new-password" placeholder="Confirm New Password" required>
+                    <span class="icon">🔒</span>
+                    <div class="error" id="confirm-new-password-error">Passwords do not match</div>
+                </div>
+                <button type="submit">Reset Password</button>
+                <div class="login-link">
+                    Back to <a href="#" onclick="showLoginPage()">Login</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Class Details Form -->
+    <div id="class-details" class="form-container hidden">
+        <img src="https://www.optifast.com/sites/g/files/lpfasj681/files/6-24.jpeg" alt="Attendance App Logo" class="top-logo">
+        <div class="class-details-container">
+            <h2>Entering These Details</h2>
+            <div id="school-details" class="hidden">
+                <div class="input-group">
+                    <input type="text" id="school-name" placeholder="School Name" required>
+                    <span class="icon">🏫</span>
+                    <div class="error" id="school-name-error">School name is required</div>
+                </div>
+                <div class="input-group">
+                    <select id="class" required>
+                        <option value="" disabled selected>-- Select Class --</option>
+                        <option value="1st Class">1st Class</option>
+                        <option value="2nd Class">2nd Class</option>
+                        <option value="3rd Class">3rd Class</option>
+                        <option value="4th Class">4th Class</option>
+                        <option value="5th Class">5th Class</option>
+                        <option value="6th Class">6th Class</option>
+                        <option value="7th Class">7th Class</option>
+                        <option value="8th Class">8th Class</option>
+                        <option value="9th Class">9th Class</option>
+                        <option value="10th Class">10th Class</option>
+                    </select>
+                    <div class="error" id="class-error">Please select a class</div>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="school-section" placeholder="Section" required>
+                    <span class="icon">📚</span>
+                    <div class="error" id="school-section-error">Section is required</div>
+                </div>
+            </div>
+            <div id="college-details" class="hidden">
+                <div class="input-group">
+                    <input type="text" id="college-name" placeholder="College Name" required>
+                    <span class="icon">🏫</span>
+                    <div class="error" id="college-name-error">College name is required</div>
+                </div>
+                <div class="input-group">
+                    <select id="year" required>
+                        <option value="" disabled selected>-- Select Year --</option>
+                        <option value="1st Year">1st Year</option>
+                        <option value="2nd Year">2nd Year</option>
+                        <option value="3rd Year">3rd Year</option>
+                        <option value="4th Year">4th Year</option>
+                    </select>
+                    <div class="error" id="year-error">Please select a year</div>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="branch" placeholder="Branch" required>
+                    <span class="icon">🌳</span>
+                    <div class="error" id="branch-error">Branch is required</div>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="college-section" placeholder="Section" required>
+                    <span class="icon">📚</span>
+                    <div class="error" id="college-section-error">Section is required</div>
+                </div>
+                <div class="input-group">
+                    <select id="role" required>
+                        <option value="" disabled selected>-- Select Role --</option>
+                        <option value="class-teacher">Class Teacher</option>
+                        <option value="CR">Class Representative (CR)</option>
+                        <option value="LR">Ladies Representative (LR)</option>
+                    </select>
+                    <div class="error" id="role-error">Please select a role</div>
+                </div>
+            </div>
+            <div class="input-group">
+                <input type="number" id="num-students" placeholder="Number of Students" min="1" required>
+                <span class="icon">👥</span>
+            </div>
+            <div class="input-group">
+                <input type="text" id="start-roll" placeholder="Starting Roll Number" required>
+                <span class="icon">🔢</span>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <button onclick="showManualEntry()">Enter Manually</button>
+                <button onclick="document.getElementById('file-upload').click()">Upload a File</button>
+                <input type="file" id="file-upload" accept=".xlsx" style="display: none;" onchange="uploadFile()">
+            </div>
+            <div id="manual-entry" class="hidden"></div>
+            <button class="continue-button" id="class-continue" onclick="saveClassDetails()" disabled>Continue</button>
+        </div>
+    </div>
+
+    <!-- Attendance Page -->
+    <div id="attendance-page" class="hidden">
+        <img src="https://www.optifast.com/sites/g/files/lpfasj681/files/6-24.jpeg" alt="Attendance App Logo" class="top-logo">
+        <div class="menu-container">
+            <span class="menu-button" onclick="toggleMenu()">☰</span>
+            <div class="menu-dropdown" id="menu-dropdown">
+                <a href="#" onclick="showAttendanceDetails()">Attendance Details</a>
+                <a href="#" onclick="showStudentAttendance()">Attendance of Particular Student</a>
+                <a href="#" onclick="showProfile()">My Profile</a>
+                <a href="#" onclick="logout()">Logout</a>
+            </div>
+        </div>
+        <header>
+            <h1>ATTENDANCE</h1>
+            <div id="college-info" style="font-size: 18px; margin-top: 10px; color: white;"></div>
+        </header>
+        <div class="date-container">
+            <label for="attendance-date">Enter Date: </label>
+            <input type="date" id="attendance-date" name="attendance-date" required>
+        </div>
+        <div class="attendance-container" id="attendance-container"></div>
+        <button class="save-button" onclick="showAbsentees()">Save Attendance</button>
+    </div>
+
+    <!-- Absentees Screen -->
+    <div id="absentees-screen" class="form-container hidden">
+        <img src="https://www.optifast.com/sites/g/files/lpfasj681/files/6-24.jpeg" alt="Attendance App Logo" class="top-logo">
+        <div class="absentees-container">
+            <h2>Absentees</h2>
+            <table id="absentees-table">
+                <thead>
+                    <tr>
+                        <th>Roll No</th>
+                        <th>Name</th>
+                    </tr>
+                </thead>
+                <tbody id="absentees-body"></tbody>
+            </table>
+            <button class="continue-button" onclick="goBack()">Back</button>
+            <button class="continue-button" onclick="saveAttendance()">Proceed</button>
+        </div>
+    </div>
+
+    <!-- Profile Screen -->
+    <div id="profile-screen" class="form-container hidden">
+        <img src="https://www.optifast.com/sites/g/files/lpfasj681/files/6-24.jpeg" alt="Attendance App Logo" class="top-logo">
+        <div class="profile-container">
+            <h2>My Profile</h2>
+            <table id="profile-table">
+                <tbody id="profile-body"></tbody>
+            </table>
+            <button class="continue-button" onclick="editProfile()">Edit</button>
+            <button class="continue-button hidden" id="save-profile" onclick="saveProfile()">Save</button>
+            <button class="continue-button" onclick="goBackToAttendance()">Back</button>
+        </div>
+    </div>
+
+    <script>
+const BASE_URL = 'https://your-app-name.onrender.com'; // We’ll update this after deploying
+const splashScreen = document.getElementById('splash-screen');
+const userDetailsScreen = document.getElementById('user-details');
+const loginPage = document.getElementById('login-page');
+const forgotPasswordPage = document.getElementById('forgot-password');
+const classDetailsScreen = document.getElementById('class-details');
+const attendancePage = document.getElementById('attendance-page');
+const absenteesScreen = document.getElementById('absentees-screen');
+const profileScreen = document.getElementById('profile-screen');
+const dateInput = document.getElementById('attendance-date');
+const container = document.getElementById('attendance-container');
+const numStudentsInput = document.getElementById('num-students');
+const manualEntryDiv = document.getElementById('manual-entry');
+const classContinueButton = document.getElementById('class-continue');
+const collegeInfoDiv = document.getElementById('college-info');
+
+let currentUserId = null;
+
+dateInput.value = new Date().toISOString().split('T')[0];
+
+window.addEventListener('load', () => {
+    const userDetails = JSON.parse(localStorage.getItem('userDetails'));
+    const studentNames = JSON.parse(localStorage.getItem('studentNames'));
+    currentUserId = localStorage.getItem('userId');
+    if (userDetails && studentNames && currentUserId) {
+        setTimeout(() => {
+            splashScreen.classList.add('hidden');
+            attendancePage.classList.remove('hidden');
+            updateCollegeInfo(userDetails);
+            generateAttendanceRows(studentNames);
+        }, 3000);
+    } else {
+        setTimeout(() => {
+            splashScreen.classList.add('hidden');
+            userDetailsScreen.classList.remove('hidden');
+        }, 3000);
+    }
+});
+
+function showLoginPage() {
+    userDetailsScreen.classList.add('hidden');
+    forgotPasswordPage.classList.add('hidden');
+    profileScreen.classList.add('hidden');
+    loginPage.classList.remove('hidden');
+}
+
+function showUserDetails() {
+    loginPage.classList.add('hidden');
+    forgotPasswordPage.classList.add('hidden');
+    userDetailsScreen.classList.remove('hidden');
+}
+
+function showForgotPassword() {
+    loginPage.classList.add('hidden');
+    forgotPasswordPage.classList.remove('hidden');
+    document.getElementById('forgotPasswordForm').classList.remove('hidden');
+    document.getElementById('newPasswordForm').classList.add('hidden');
+}
+
+function showProfile() {
+    attendancePage.classList.add('hidden');
+    profileScreen.classList.remove('hidden');
+    displayProfile();
+}
+
+function goBackToAttendance() {
+    profileScreen.classList.add('hidden');
+    absenteesScreen.classList.add('hidden');
+    attendancePage.classList.remove('hidden');
+    const userDetails = JSON.parse(localStorage.getItem('userDetails'));
+    updateCollegeInfo(userDetails);
+}
+
+function updateCollegeInfo(userDetails) {
+    if (userDetails.institutionType === 'school') {
+        collegeInfoDiv.textContent = `${userDetails.school}, ${userDetails.class}, ${userDetails.section}`;
+    } else {
+        collegeInfoDiv.textContent = `${userDetails.college}, ${userDetails.year}, ${userDetails.branch}, ${userDetails.section}`;
+    }
+}
+
+document.getElementById('registerForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const userDetails = {
+        name: document.getElementById('user-name').value.trim(),
+        phone: document.getElementById('phone-number').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        password: document.getElementById('password').value,
+        institutionType: document.getElementById('institution-type').value
+    };
+    const errors = {
+        'user-name': document.getElementById('user-name-error'),
+        'phone-number': document.getElementById('phone-number-error'),
+        'email': document.getElementById('email-error'),
+        'password': document.getElementById('password-error'),
+        'institution-type': document.getElementById('institution-type-error')
+    };
+    Object.values(errors).forEach(error => error.style.display = 'none');
+    let isValid = true;
+    if (userDetails.name.length < 3) {
+        errors['user-name'].style.display = 'block';
+        isValid = false;
+    }
+    const phonePattern = /^\d{10}$/;
+    if (!phonePattern.test(userDetails.phone)) {
+        errors['phone-number'].style.display = 'block';
+        isValid = false;
+    }
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(userDetails.email)) {
+        errors['email'].style.display = 'block';
+        isValid = false;
+    }
+    if (userDetails.password.length < 8) {
+        errors['password'].style.display = 'block';
+        isValid = false;
+    }
+    if (!userDetails.institutionType) {
+        errors['institution-type'].style.display = 'block';
+        isValid = false;
+    }
+    if (isValid) {
+        try {
+            const response = await fetch('${BASE_URL}/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userDetails)
+            });
+            const data = await response.json();
+            if (response.ok) {
+                localStorage.setItem('userDetails', JSON.stringify(userDetails));
+                localStorage.setItem('userId', data.id);
+                currentUserId = data.id;
+                userDetailsScreen.classList.add('hidden');
+                classDetailsScreen.classList.remove('hidden');
+                document.getElementById('school-details').classList.toggle('hidden', userDetails.institutionType !== 'school');
+                document.getElementById('college-details').classList.toggle('hidden', userDetails.institutionType !== 'college');
+            } else {
+                alert(data.error);
+            }
+        } catch (error) {
+            alert('Registration failed. Try again.');
+        }
+    }
+});
+
+document.getElementById('loginForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const emailError = document.getElementById('login-email-error');
+    const passwordError = document.getElementById('login-password-error');
+    emailError.style.display = 'none';
+    passwordError.style.display = 'none';
+    let isValid = true;
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+        emailError.style.display = 'block';
+        isValid = false;
+    }
+    if (password.length < 8) {
+        passwordError.style.display = 'block';
+        isValid = false;
+    }
+    if (isValid) {
+        try {
+            const response = await fetch('${BASE_URL}/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                const userDetails = await fetch(`${BASE_URL}/profile/${data.userId}`).then(res => res.json());
+                localStorage.setItem('userDetails', JSON.stringify(userDetails));
+                localStorage.setItem('userId', data.userId);
+                currentUserId = data.userId;
+                const studentNames = JSON.parse(localStorage.getItem('studentNames'));
+                if (studentNames) {
+                    loginPage.classList.add('hidden');
+                    attendancePage.classList.remove('hidden');
+                    updateCollegeInfo(userDetails);
+                    generateAttendanceRows(studentNames);
+                } else {
+                    loginPage.classList.add('hidden');
+                    classDetailsScreen.classList.remove('hidden');
+                    document.getElementById('school-details').classList.toggle('hidden', data.institutionType !== 'school');
+                    document.getElementById('college-details').classList.toggle('hidden', data.institutionType !== 'college');
+                }
+            } else {
+                errors['email'].textContent = data.error;
+                errors['email'].style.display = 'block';
+            }
+        } catch (error) {
+            alert('Login failed. Try again.');
+        }
+    }
+});
+
+document.getElementById('forgotPasswordForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const input = document.getElementById('reset-email-or-phone').value.trim();
+    const error = document.getElementById('reset-email-or-phone-error');
+    error.style.display = 'none';
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phonePattern = /^\d{10}$/;
+    const isEmail = emailPattern.test(input);
+    const isPhone = phonePattern.test(input);
+    if (!isEmail && !isPhone) {
+        error.style.display = 'block';
+        return;
+    }
+    document.getElementById('forgotPasswordForm').classList.add('hidden');
+    document.getElementById('newPasswordForm').classList.remove('hidden');
+});
+
+document.getElementById('newPasswordForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const emailOrPhone = document.getElementById('reset-email-or-phone').value.trim();
+    const newPassword = document.getElementById('new-password').value;
+    const confirmNewPassword = document.getElementById('confirm-new-password').value;
+    const newPasswordError = document.getElementById('new-password-error');
+    const confirmNewPasswordError = document.getElementById('confirm-new-password-error');
+    newPasswordError.style.display = 'none';
+    confirmNewPasswordError.style.display = 'none';
+    let isValid = true;
+    if (newPassword.length < 8) {
+        newPasswordError.style.display = 'block';
+        isValid = false;
+    }
+    if (newPassword !== confirmNewPassword) {
+        confirmNewPasswordError.style.display = 'block';
+        isValid = false;
+    }
+    if (isValid) {
+        try {
+            const response = await fetch('${BASE_URL}/reset-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ emailOrPhone, newPassword })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                alert('Password reset successfully! Please login.');
+                showLoginPage();
+            } else {
+                errors['email'].textContent = data.error;
+                errors['email'].style.display = 'block';
+            }
+        } catch (error) {
+            alert('Password reset failed. Try again.');
+        }
+    }
+});
+
+function showManualEntry() {
+    const numStudents = parseInt(numStudentsInput.value);
+    const startRoll = document.getElementById('start-roll').value.trim();
+    if (!numStudents || numStudents < 1) {
+        alert('Please enter a valid number of students.');
+        return;
+    }
+    if (!startRoll) {
+        alert('Please enter a starting roll number.');
+        return;
+    }
+    manualEntryDiv.innerHTML = '';
+    for (let i = 1; i <= numStudents; i++) {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = `Student ${i} Name`;
+        input.dataset.index = i;
+        manualEntryDiv.appendChild(input);
+    }
+    manualEntryDiv.classList.remove('hidden');
+    classContinueButton.disabled = false;
+}
+
+async function uploadFile() {
+    const fileInput = document.getElementById('file-upload');
+    const file = fileInput.files[0];
+    const startRoll = document.getElementById('start-roll').value.trim();
+    if (!file) {
+        alert('Please select a file.');
+        return;
+    }
+    if (!startRoll) {
+        alert('Please enter a starting roll number.');
+        return;
+    }
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+        const response = await fetch('${BASE_URL}/upload-students', {
+            method: 'POST',
+            body: formData
+        });
+        const students = await response.json();
+        if (students.length) {
+            const studentResponse = await fetch('${BASE_URL}/save-students', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: currentUserId, students, startRoll })
+            });
+            if (studentResponse.ok) {
+                localStorage.setItem('studentNames', JSON.stringify(students));
+                localStorage.setItem('numStudents', students.length);
+                localStorage.setItem('startRoll', startRoll);
+                classDetailsScreen.classList.add('hidden');
+                attendancePage.classList.remove('hidden');
+                const userDetails = JSON.parse(localStorage.getItem('userDetails'));
+                updateCollegeInfo(userDetails);
+                generateAttendanceRows(students);
+            } else {
+                alert('Failed to save students.');
+            }
+        } else {
+            alert('No valid student names found in the file.');
+        }
+    } catch (error) {
+        alert('Failed to upload file.');
+    }
+}
+
+async function saveClassDetails() {
+    const numStudents = parseInt(numStudentsInput.value);
+    const startRoll = document.getElementById('start-roll').value.trim();
+    let userDetails = JSON.parse(localStorage.getItem('userDetails'));
+    if (!numStudents || numStudents < 1) {
+        alert('Please enter a valid number of students.');
+        return;
+    }
+    if (!startRoll) {
+        alert('Please enter a starting roll number.');
+        return;
+    }
+    let isValid = true;
+    if (userDetails.institutionType === 'school') {
+        const schoolName = document.getElementById('school-name').value.trim();
+        const className = document.getElementById('class').value;
+        const section = document.getElementById('school-section').value.trim();
+        if (!schoolName) {
+            document.getElementById('school-name-error').style.display = 'block';
+            isValid = false;
+        }
+        if (!className) {
+            document.getElementById('class-error').style.display = 'block';
+            isValid = false;
+        }
+        if (!section) {
+            document.getElementById('school-section-error').style.display = 'block';
+            isValid = false;
+        }
+        userDetails.school = schoolName;
+        userDetails.class = className;
+        userDetails.section = section;
+    } else {
+        const collegeName = document.getElementById('college-name').value.trim();
+        const year = document.getElementById('year').value;
+        const branch = document.getElementById('branch').value.trim();
+        const section = document.getElementById('college-section').value.trim();
+        const role = document.getElementById('role').value;
+        if (!collegeName) {
+            document.getElementById('college-name-error').style.display = 'block';
+            isValid = false;
+        }
+        if (!year) {
+            document.getElementById('year-error').style.display = 'block';
+            isValid = false;
+        }
+        if (!branch) {
+            document.getElementById('branch-error').style.display = 'block';
+            isValid = false;
+        }
+        if (!section) {
+            document.getElementById('college-section-error').style.display = 'block';
+            isValid = false;
+        }
+        if (!role) {
+            document.getElementById('role-error').style.display = 'block';
+            isValid = false;
+        }
+        userDetails.college = collegeName;
+        userDetails.year = year;
+        userDetails.branch = branch;
+        userDetails.section = section;
+        userDetails.role = role;
+    }
+    if (!isValid) return;
+    const inputs = manualEntryDiv.querySelectorAll('input');
+    const studentNames = Array.from(inputs).map(input => ({ name: input.value }));
+    if (studentNames.every(student => student.name)) {
+        try {
+            // Update user details (school/college info)
+            const updateResponse = await fetch(`${BASE_URL}/profile/${currentUserId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userDetails)
+            });
+            const updateData = await updateResponse.json();
+            if (!updateResponse.ok) {
+                throw new Error(updateData.error || 'Failed to update user details');
+            }
+            localStorage.setItem('userDetails', JSON.stringify(userDetails));
+            
+            // Save student names
+            const studentResponse = await fetch('${BASE_URL}/save-students', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: currentUserId, students: studentNames, startRoll })
+            });
+            const studentData = await studentResponse.json();
+            if (studentResponse.ok) {
+                localStorage.setItem('studentNames', JSON.stringify(studentNames));
+                localStorage.setItem('numStudents', numStudents);
+                localStorage.setItem('startRoll', startRoll);
+                classDetailsScreen.classList.add('hidden');
+                attendancePage.classList.remove('hidden');
+                updateCollegeInfo(userDetails);
+                generateAttendanceRows(studentNames);
+            } else {
+                throw new Error(studentData.error || 'Failed to save students');
+            }
+        } catch (error) {
+            alert(error.message || 'Failed to save class details.');
+        }
+    } else {
+        alert('Please fill all student names.');
+    }
+}
+
+function generateAttendanceRows(students) {
+    const numStudents = parseInt(localStorage.getItem('numStudents')) || students.length;
+    const startRoll = localStorage.getItem('startRoll') || '24BFA33001';
+    container.innerHTML = '';
+    const match = startRoll.match(/^(.*?)(\d+)$/);
+    let prefix = '';
+    let startNumber = 1;
+    let numberLength = 1;
+    if (match) {
+        prefix = match[1];
+        startNumber = parseInt(match[2]);
+        numberLength = match[2].length;
+    } else {
+        prefix = startRoll;
+    }
+    for (let i = 0; i < numStudents; i++) {
+        const rollNumber = `${prefix}${(startNumber + i).toString().padStart(numberLength, '0')}`;
+        const studentName = students[i]?.name || `Student ${i + 1}`;
+        const attendanceBox = document.createElement('div');
+        attendanceBox.classList.add('attendance-box');
+        attendanceBox.innerHTML = `
+            <div class="student-info">
+                <p><strong>Roll No:</strong> ${rollNumber}</p>
+                <p><strong>Name:</strong> ${studentName}</p>
+            </div>
+            <div class="attendance-buttons">
+                <div class="attendance-button absent" data-roll="${rollNumber}" data-name="${studentName}" onclick="toggleAttendance(this, 'absent')" ontouchstart="toggleAttendance(this, 'absent')">A</div>
+                <div class="attendance-button present selected" data-roll="${rollNumber}" data-name="${studentName}" onclick="toggleAttendance(this, 'present')" ontouchstart="toggleAttendance(this, 'present')">P</div>
+            </div>
+        `;
+        container.appendChild(attendanceBox);
+    }
+}
+
+function toggleAttendance(button, status) {
+    const parent = button.parentElement;
+    const sibling = status === 'absent' ? parent.querySelector('.present') : parent.querySelector('.absent');
+    button.classList.add('selected');
+    sibling.classList.remove('selected');
+}
+
+function showAbsentees() {
+    const date = dateInput.value;
+    if (!date) {
+        alert('Please select a date.');
+        return;
+    }
+    const boxes = document.querySelectorAll('.attendance-box');
+    const absentees = [];
+    boxes.forEach(box => {
+        const roll = box.querySelector('.attendance-button').getAttribute('data-roll');
+        const name = box.querySelector('.attendance-button').getAttribute('data-name');
+        if (box.querySelector('.absent.selected')) {
+            absentees.push({ roll, name });
+            }
+        });
+        const absenteesBody = document.getElementById('absentees-body');
+        absenteesBody.innerHTML = '';
+        if (absentees.length === 0) {
+            absenteesBody.innerHTML = '<tr><td colspan="2">No absentees</td></tr>';
+            } else {
+            absentees.forEach(({ roll, name}) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${roll}</td><td>${name}</td>`;
+                absenteesBody.appendChild(row);
+            });
+            }
+            attendancePage.classList.add('hidden');
+            absenteesScreen.classList.remove('hidden');
+        }
+
+async function saveAttendance() {
+    const date = dateInput.value;
+    const boxes = document.querySelectorAll('.attendance-box');
+    const attendanceData = [];
+    boxes.forEach(box => {
+        const roll = box.querySelector('.attendance-button').getAttribute('data-roll');
+        const status = box.querySelector('.selected') ? 
+            (box.querySelector('.present.selected') ? 'P' : 'A') : '';
+        attendanceData.push({ roll, status });
+    });
+    try {
+        const response = await fetch('${BASE_URL}/save-attendance', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ date, attendance: attendanceData, userId: currentUserId })
+        });
+        const data = await response.json();
+        if (response.ok) {
+            alert('Attendance saved successfully!');
+            absenteesScreen.classList.add('hidden');
+            attendancePage.classList.remove('hidden');
+            const userDetails = JSON.parse(localStorage.getItem('userDetails'));
+            updateCollegeInfo(userDetails);
+        } else {
+            alert(data.error || 'Failed to save attendance');
+        }
+    } catch (error) {
+        alert('Error connecting to the server: ' + error.message);
+    }
+}
+
+function goBack() {
+            absenteesScreen.classList.add('hidden');
+            attendancePage.classList.remove('hidden');
+            const userDetails = JSON.parse(localStorage.getItem('userDetails'));
+            updateCollegeInfo(userDetails);
+        }
+
+async function displayProfile() {
+    console.log('Fetching profile for userId:', currentUserId);
+    try {
+        if (!currentUserId) {
+            throw new Error('No user ID found. Please log in again.');
+        }
+        const response = await fetch(`${BASE_URL}/profile/${currentUserId}`);
+        console.log('Profile response status:', response.status);
+        const userDetails = await response.json();
+        console.log('Profile data:', userDetails);
+        if (response.ok) {
+            localStorage.setItem('userDetails', JSON.stringify(userDetails));
+            const profileBody = document.getElementById('profile-body');
+            profileBody.innerHTML = '';
+
+            const fields = [
+                { label: 'Name', value: userDetails.name || 'N/A' },
+                { label: 'Phone', value: userDetails.phone || 'N/A' },
+                { label: 'Email', value: userDetails.email || 'N/A' }
+            ];
+            if (userDetails.institutionType === 'school') {
+                fields.push(
+                    { label: 'School', value: userDetails.school || 'N/A' },
+                    { label: 'Class', value: userDetails.class || 'N/A' },
+                    { label: 'Section', value: userDetails.section || 'N/A' }
+                );
+            } else {
+                fields.push(
+                    { label: 'College', value: userDetails.college || 'N/A' },
+                    { label: 'Year', value: userDetails.year || 'N/A' },
+                    { label: 'Branch', value: userDetails.branch || 'N/A' },
+                    { label: 'Section', value: userDetails.section || 'N/A' },
+                    { label: 'Role', value: userDetails.role || 'N/A' }
+                );
+            }
+
+            fields.forEach(field => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${field.label}</td>
+                    <td class="profile-value" data-field="${field.label.toLowerCase()}">${field.value}</td>
+                `;
+                profileBody.appendChild(row);
+            });
+        } else {
+            throw new Error(userDetails.error || 'Failed to load profile');
+        }
+    } catch (error) {
+        console.error('Error loading profile:', error.message);
+        alert('Error: ' + error.message);
+    }
+}
+
+            function editProfile() {
+                const profileBody = document.getElementById('profile-body');
+                const rows = profileBody.querySelectorAll('tr');
+                rows.forEach(row => {
+                    const field = row.querySelector('.profile-value').dataset.field;
+                    const value = row.querySelector('.profile-value').textContent;
+                    if (field !== 'email') {
+                        row.querySelector('.profile-value').innerHTML = `
+                        <input type="edit-input" class="edit-input" data-field="${field}" value="${value}">
+                    `;
+            }});
+                document.getElementById('save-profile').classList.remove('hidden');
+            }
+
+            async function saveProfile() {
+                const userDetails = JSON.parse(localStorage.getItem('userDetails'));
+                const inputs = document.querySelectorAll('.edit-input');
+                inputs.forEach(input => {
+                    const field = input.dataset.field;
+                    userDetails[field] = input.value.trim();
+                });
+                try {
+                    const response = await fetch('${BASE_URL}/profile/${currentUserId}', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(userDetails)
+                    });
+                const data = await response.json();
+                if (response.ok) {
+                    localStorage.setItem('userDetails', JSON.stringify(userDetails));
+                    document.getElementById('save-profile').classList.add('hidden');
+                    displayProfile();
+                    alert('Profile updated successfully!');
+                    } else {
+                        alert('data.error');
+                        }
+                    } catch (error) {
+                        alert('Failed to save profile');
+                        }
+                    }
+
+                function toggleMenu() {
+                    const menu = document.getElementById('menu-dropdown');
+                    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+                    }
+
+                    function showAttendanceDetails() {
+                        alert('Attendance Details: This feature will show a summary of attendance records.');
+                        }
+
+                        function showStudentAttendance() {
+                            const roll = prompt('Enter Roll Number:');
+                            if (roll) {
+                                alert('Attendance for ${roll}: This feature would fetch attendance history.');
+                            }
+                        }
+
+                            function logout() {
+                                localStorage.clear();
+                                currentUserId = null;
+                                window.location.reload();
+                            }
+
+                            if ('serviceWorker' in navigator) {
+                                window.addEventListener('load', () => {
+                                    navigator.serviceWorker.register('/service-worker.js')
+                                        .then(reg => console.log('Service Worker registered successfully!'))
+                                        .catch(err => console.error('Service Worker registration failed:', err));
+                                    });
+                                }
+    </script>
+</body>
+</html>
